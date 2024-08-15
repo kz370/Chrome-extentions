@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blacklist Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.3/font/bootstrap-icons.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .btn-trash {
+            color: #dc3545;
+        }
+        .btn-trash:hover {
+            color: #c82333;
+        }
+        .table thead th {
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4">Manage Blacklist</h1>
+        
+        <!-- Add New Extension Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                Add New Extension
+            </div>
+            <div class="card-body">
+                <form id="add-endpoint-form">
+                    <div class="mb-3">
+                        <label for="extension-id" class="form-label">Extension ID</label>
+                        <input type="text" class="form-control" id="extension-id" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="domain" class="form-label">Domain</label>
+                        <input type="text" class="form-control" id="domain" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Extension</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Blacklisted Domains Table -->
+        <div class="card">
+            <div class="card-header">
+                Blacklisted Domains
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Extension ID</th>
+                            <th>Domain</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blacklist-table-body">
+                        <!-- Table rows will be populated here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="options.js"></script>
+</body>
+</html>
