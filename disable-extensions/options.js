@@ -2,6 +2,22 @@ document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('add-endpoint-form');
     const tableBody = document.getElementById('blacklist-table-body');
 
+    function loadExtensions() {
+        const extensionSelect = document.getElementById('extension-id'); // Use the ID of the select element
+    
+        chrome.management.getAll((extensions) => {
+            const extensionList = extensions.filter(extension => extension.type === 'extension');
+            extensionSelect.innerHTML = '<option value="" disabled selected>Select an extension</option>';
+            extensionList.forEach(extension => {
+                const option = document.createElement('option');
+                option.value = extension.id;
+                option.textContent = extension.name;
+                extensionSelect.appendChild(option);
+            });
+        });
+    }
+    
+
     // Load blacklist from Chrome storage
     function loadBlacklist() {
         chrome.storage.sync.get('extensions', function(data) {
@@ -15,6 +31,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>
                         <button class="btn btn-trash btn-sm" data-extension-id="${item.extensionId}">
                             <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                    <td>
+                        <button class="btn btn-edit btn-sm" data-extension-id="${item.extensionId}" data-domain="${item.domains.join(', ')}">
+                            <i class="bi bi-pencil"></i>
                         </button>
                     </td>
                 `;
@@ -33,6 +54,20 @@ document.addEventListener('DOMContentLoaded', function() {
             chrome.storage.sync.get('extensions', function(data) {
                 const blacklist = data.extensions || [];
                 const extension = blacklist.find(item => item.extensionId === extensionId);
+
+
+                // if (editingEntry) {
+                //     // Edit existing entry
+                //     blacklist = blacklist.map(item =>
+                //         item.domain === editingEntry.domain && item.extensionId === editingEntry.extensionId
+                //             ? { extensionId, domain }
+                //             : item
+                //     );
+                //     editingEntry = null;
+                // } else {
+                //     // Add new entry
+                //     blacklist.push({ extensionId, domain });
+                // }
 
                 if (extension) {
                     extension.domains.push(domain);
@@ -62,6 +97,23 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // handle edit button click
+    tableBody.addEventListener('click', function(event) {
+        if (event.target.closest('.btn-edit')) {
+            const button = event.target.closest('.btn-edit');
+            const extensionId = button.getAttribute('data-extension-id');
+            const domain = button.getAttribute('data-domain');
+
+            // Fill the form with the current values for editing
+            document.getElementById('extension-id').value = extensionId;
+            document.getElementById('domain').value = domain;
+
+            // Store the current entry to be edited
+            editingEntry = { extensionId, domain };
+        }
+    });
+
     // Initial load of blacklist
     loadBlacklist();
+    loadExtensions();
 });

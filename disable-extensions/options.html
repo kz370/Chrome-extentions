@@ -37,8 +37,10 @@
             <div class="card-body">
                 <form id="add-endpoint-form">
                     <div class="mb-3">
-                        <label for="extension-id" class="form-label">Extension ID</label>
-                        <input type="text" class="form-control" id="extension-id" required>
+                        <label for="extension-select" class="form-label">Extension</label>
+                        <select class="form-select" id="extension-id" required>
+                            <option value="" disabled selected>Select an extension</option>
+                        </select>
                     </div>
                     <div class="mb-3">
                         <label for="domain" class="form-label">Domain</label>
@@ -61,6 +63,7 @@
                             <th>Extension ID</th>
                             <th>Domain</th>
                             <th>Action</th>
+                            <th>Edit</th>
                         </tr>
                     </thead>
                     <tbody id="blacklist-table-body">
