@@ -49,32 +49,22 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const extensionId = document.getElementById('extension-id').value.trim();
         const domain = document.getElementById('domain').value.trim();
-
+    
         if (extensionId && domain) {
             chrome.storage.sync.get('extensions', function(data) {
                 const blacklist = data.extensions || [];
-                const extension = blacklist.find(item => item.extensionId === extensionId);
-
-
-                // if (editingEntry) {
-                //     // Edit existing entry
-                //     blacklist = blacklist.map(item =>
-                //         item.domain === editingEntry.domain && item.extensionId === editingEntry.extensionId
-                //             ? { extensionId, domain }
-                //             : item
-                //     );
-                //     editingEntry = null;
-                // } else {
-                //     // Add new entry
-                //     blacklist.push({ extensionId, domain });
-                // }
-
-                if (extension) {
-                    extension.domains.push(domain);
+                
+                // Find the index of the existing entry with the same extensionId
+                const index = blacklist.findIndex(item => item.extensionId === extensionId);
+    
+                if (index !== -1) {
+                    // Replace the existing entry's domains with the new domain
+                    blacklist[index].domains = [domain];
                 } else {
+                    // Add a new entry if it doesn't exist
                     blacklist.push({ extensionId, domains: [domain] });
                 }
-
+    
                 chrome.storage.sync.set({ extensions: blacklist }, function() {
                     loadBlacklist(); // Reload the blacklist
                     form.reset(); // Reset form fields
