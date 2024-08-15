@@ -1,10 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('add-endpoint-form');
     const tableBody = document.getElementById('blacklist-table-body');
+    const extensionSelect = document.getElementById('extension-id'); // Use the ID of the select element
+    let editingEntry = null;
 
+    // Load extensions and populate the select dropdown
     function loadExtensions() {
-        const extensionSelect = document.getElementById('extension-id'); // Use the ID of the select element
-    
         chrome.management.getAll((extensions) => {
             const extensionList = extensions.filter(extension => extension.type === 'extension');
             extensionSelect.innerHTML = '<option value="" disabled selected>Select an extension</option>';
@@ -17,29 +18,38 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-
     // Load blacklist from Chrome storage
     function loadBlacklist() {
         chrome.storage.sync.get('extensions', function(data) {
             const blacklist = data.extensions || [];
             tableBody.innerHTML = ''; // Clear current table rows
-            blacklist.forEach(item => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${item.extensionId}</td>
-                    <td>${item.domains.join(', ')}</td>
-                    <td>
-                        <button class="btn btn-trash btn-sm" data-extension-id="${item.extensionId}">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                    <td>
-                        <button class="btn btn-edit btn-sm" data-extension-id="${item.extensionId}" data-domain="${item.domains.join(', ')}">
-                            <i class="bi bi-pencil"></i>
-                        </button>
-                    </td>
-                `;
-                tableBody.appendChild(row);
+
+            chrome.management.getAll((extensions) => {
+                const extensionMap = extensions.reduce((map, ext) => {
+                    if (ext.type === 'extension') {
+                        map[ext.id] = ext.name;
+                    }
+                    return map;
+                }, {});
+
+                blacklist.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${extensionMap[item.extensionId] || item.extensionId}</td>
+                        <td>${item.domains.join(', ')}</td>
+                        <td>
+                            <button class="btn btn-trash btn-sm" data-extension-id="${item.extensionId}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                        <td>
+                            <button class="btn btn-edit btn-sm" data-extension-id="${item.extensionId}" data-domain="${item.domains.join(', ')}">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                        </td>
+                    `;
+                    tableBody.appendChild(row);
+                });
             });
         });
     }
@@ -49,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         const extensionId = document.getElementById('extension-id').value.trim();
         const domain = document.getElementById('domain').value.trim();
-    
+
         if (extensionId && domain) {
             chrome.storage.sync.get('extensions', function(data) {
                 const blacklist = data.extensions || [];
@@ -87,7 +97,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // handle edit button click
+    // Handle edit button click
     tableBody.addEventListener('click', function(event) {
         if (event.target.closest('.btn-edit')) {
             const button = event.target.closest('.btn-edit');
@@ -103,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initial load of blacklist
+    // Initial load of blacklist and extensions
     loadBlacklist();
     loadExtensions();
 });
